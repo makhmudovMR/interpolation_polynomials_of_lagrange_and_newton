@@ -1,4 +1,6 @@
 from tkinter import *
+import scipy.interpolate
+import numpy as np
 
 
 class MyApp:
@@ -9,71 +11,76 @@ class MyApp:
         self.master.resizable(width=False, height=False)
         self.master.title("Интерполяционный многочлен Лагранжа и Ньютона (Магомед Махмудов)")
         self.init()
+        self.init_styles()
+
+    def init_styles(self):
+        pass
 
     """init widgets"""
     def init(self):
 
+        """ Input fields"""
+
         # fields for x
-        text_x1 = Text(self.master, height=1, width=10)
-        text_x2 = Text(self.master, height=1, width=10)
-        text_x3 = Text(self.master, height=1, width=10)
-        text_x4 = Text(self.master, height=1, width=10)
-        label_x = Label(self.master, text="X")
+        self.label_x = Label(self.master, text="X")
+        self.text_x1 = Text(self.master, height=1, width=10)
+        self.text_x2 = Text(self.master, height=1, width=10)
+        self.text_x3 = Text(self.master, height=1, width=10)
+        self.text_x4 = Text(self.master, height=1, width=10)
 
-        label_x.grid(row=0, column=0, padx=10, pady=10)
-        text_x1.grid(row=0, column=1, padx=10, pady=10)
-        text_x2.grid(row=0, column=2, padx=10, pady=10)
-        text_x3.grid(row=0, column=3, padx=10, pady=10)
-        text_x4.grid(row=0, column=4, padx=10, pady=10)
-
-        self.text_x1 = text_x1
-        self.text_x2 = text_x2
-        self.text_x3 = text_x3
-        self.text_x4 = text_x4
+        self.label_x.grid(row=0, column=0, padx=10, pady=10)
+        self.text_x1.grid(row=0, column=1, padx=10, pady=10)
+        self.text_x2.grid(row=0, column=2, padx=10, pady=10)
+        self.text_x3.grid(row=0, column=3, padx=10, pady=10)
+        self.text_x4.grid(row=0, column=4, padx=10, pady=10)
 
 
         # fields for y
-        text_y1 = Text(self.master, height=1, width=10)
-        text_y2 = Text(self.master, height=1, width=10)
-        text_y3 = Text(self.master, height=1, width=10)
-        text_y4 = Text(self.master, height=1, width=10)
-        label_y = Label(self.master, text="Y")
+        self.label_y = Label(self.master, text="Y")
+        self.text_y1 = Text(self.master, height=1, width=10)
+        self.text_y2 = Text(self.master, height=1, width=10)
+        self.text_y3 = Text(self.master, height=1, width=10)
+        self.text_y4 = Text(self.master, height=1, width=10)
 
-        label_y.grid(row=1, column=0, padx=10, pady=10)
-        text_y1.grid(row=1, column=1, padx=10, pady=10)
-        text_y2.grid(row=1, column=2, padx=10, pady=10)
-        text_y3.grid(row=1, column=3, padx=10, pady=10)
-        text_y4.grid(row=1, column=4, padx=10, pady=10)
+        self.label_y.grid(row=1, column=0, padx=10, pady=10)
+        self.text_y1.grid(row=1, column=1, padx=10, pady=10)
+        self.text_y2.grid(row=1, column=2, padx=10, pady=10)
+        self.text_y3.grid(row=1, column=3, padx=10, pady=10)
+        self.text_y4.grid(row=1, column=4, padx=10, pady=10)
 
-
-        self.text_y1 = text_y1
-        self.text_y2 = text_y2
-        self.text_y3 = text_y3
-        self.text_y4 = text_y4
-
+        """ Service buttons """
 
         btn_load = Button(self.master, text="Загрузить данные", width=len("Загрузить данные"), command=self.load_data)
         btn_load.grid(row=0, column=5, padx=10, pady=10)
 
-        btn_calc = Button(self.master, text="Считать", width=len("Загрузить данные"))
+        btn_calc = Button(self.master, text="Считать", width=len("Загрузить данные"), command=self.calc)
         btn_calc.grid(row=1, column=5, padx=10, pady=10)
 
         btn_clear = Button(self.master, text="Очистить", width=len("Загрузить данные"), command=self.clear_fields)
         btn_clear.grid(row=2, column=5, padx=10, pady=10)
 
 
-        var_int = IntVar()
-        rL = Radiobutton(self.master, text="Лаграндж", variable=var_int,value=1)
-        rN = Radiobutton(self.master, text="Ньютон", variable=var_int,value=2)
+        """ RadioButtons for chose """
 
-        rL.grid(row=3, column=5, padx=10, pady=10)
-        rN.grid(row=4, column=5, padx=10, pady=10)
+        # var_int = IntVar()
+        # rL = Radiobutton(self.master, text="Лаграндж", variable=var_int,value=1)
+        # rN = Radiobutton(self.master, text="Ньютон", variable=var_int,value=2)
+        #
+        # rL.grid(row=3, column=5, padx=10, pady=10)
+        # rN.grid(row=4, column=5, padx=10, pady=10)
 
-        # frame1 = Frame(self.master, bg='green', bd=5)
-        # btn_test = Button(frame1, text="test")
-        # btn_test.pack()
-        # frame1.grid(row=5, column=0)
+        labelframe = LabelFrame(self.master, text="Ответы")
+        labelframe.grid(row=3, column=0, columnspan=4)
 
+        self.label_L = StringVar()
+        self.label_N = StringVar()
+
+        Label(labelframe, textvariable=self.label_L).grid(row=0, column=0, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_N).grid(row=1, column=0, padx=10, pady=10)
+        self.label_L.set("Лаградж")
+        self.label_N.set("Ньютон")
+
+    """load data from text fields"""
     def load_data(self):
         self.text_x1.insert(END, 0)
         self.text_x2.insert(END, 0.2)
@@ -85,6 +92,7 @@ class MyApp:
         self.text_y3.insert(END, 0.865)
         self.text_y4.insert(END, 0.532)
 
+    """clear text fileds"""
     def clear_fields(self):
         self.text_x1.delete("1.0",END)
         self.text_x2.delete("1.0",END)
@@ -95,6 +103,39 @@ class MyApp:
         self.text_y2.delete("1.0",END)
         self.text_y3.delete("1.0",END)
         self.text_y4.delete("1.0",END)
+
+        self.label_L.set("Лаградж")
+        self.label_N.set("Ньютон")
+
+    def calc(self):
+        self.calc_L()
+        self.calc_N()
+
+    def calc_L(self):
+        X = [self.text_x1.get("1.0", END), self.text_x2.get("1.0", END), self.text_x3.get("1.0", END), self.text_x4.get("1.0", END)]
+        Y = [self.text_y1.get("1.0", END), self.text_y2.get("1.0", END), self.text_y3.get("1.0", END), self.text_y4.get("1.0", END)]
+        X = list(map(lambda x: float(x[0:-1]), X))
+        Y = list(map(lambda y: float(y[0:-1]), Y))
+        # print(X)
+        # print(Y)
+
+        X = np.array(X)
+        Y = np.array(Y)
+
+        """Lagrange formula in action"""
+
+        result = scipy.interpolate.lagrange(X,Y)
+        self.label_L.set(result)
+
+        def sub_formula(x):
+            return (-7.729*(x**3))+(1.35*(x**2)) + 2.859*x
+
+        print(result(0.2))
+
+
+    def calc_N(self):
+        pass
+
 
 
 
