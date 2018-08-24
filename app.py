@@ -1,8 +1,13 @@
+"""
+This is bad code
+Предупреждаю говнокод!
+"""
+
 from tkinter import *
 import scipy.interpolate
 import scipy.misc
 import numpy as np
-
+import newton
 
 class MyApp:
 
@@ -73,21 +78,46 @@ class MyApp:
         labelframe = LabelFrame(self.master, text="Ответы")
         labelframe.grid(row=3, column=0, columnspan=5, padx=10, pady=10)
 
-        self.label_L = StringVar()
+
+
+
+        self.label_L_y1 = StringVar()
+        self.label_L_y2 = StringVar()
+        self.label_L_y3 = StringVar()
+        self.label_L_y4 = StringVar()
+
         self.label_deriv_L = StringVar()
-        self.label_N = StringVar()
+
+        self.label_N_y1 = StringVar()
+        self.label_N_y2 = StringVar()
+        self.label_N_y3 = StringVar()
+        self.label_N_y4 = StringVar()
+
         self.label_deriv_N = StringVar()
+
         self.label_D = StringVar()
 
-        Label(labelframe, textvariable=self.label_L).grid(row=0, column=0, padx=10, pady=10)
-        Label(labelframe, textvariable=self.label_deriv_L).grid(row=0, column=1, padx=10, pady=10)
-        Label(labelframe, textvariable=self.label_N).grid(row=1, column=0, padx=10, pady=10)
-        Label(labelframe, textvariable=self.label_deriv_N).grid(row=1, column=1, padx=10, pady=10)
-        Label(labelframe, textvariable=self.label_D).grid(row=0, column=2, padx=10, pady=10)
-        self.label_L.set("Лаградж")
-        self.label_deriv_L.set("производная Лагрнаджа")
-        self.label_N.set("Ньютон")
-        self.label_deriv_N.set("производная Ньютона")
+        self.label_L = Label(labelframe,text="L(x):").grid(row=0, column=0, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_L_y1).grid(row=0, column=1, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_L_y2).grid(row=0, column=2, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_L_y3).grid(row=0, column=3, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_L_y4).grid(row=0, column=4, padx=10, pady=10)
+
+        Label(labelframe, textvariable=self.label_deriv_L).grid(row=0, column=5, padx=10, pady=10)
+
+        self.label_N = Label(labelframe, text="N(x):").grid(row=1, column=0, padx=10, pady=10)
+
+        Label(labelframe, textvariable=self.label_N_y1).grid(row=1, column=1, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_N_y2).grid(row=1, column=2, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_N_y3).grid(row=1, column=3, padx=10, pady=10)
+        Label(labelframe, textvariable=self.label_N_y4).grid(row=1, column=4, padx=10, pady=10)
+
+        Label(labelframe, textvariable=self.label_deriv_N).grid(row=1, column=5, padx=10, pady=10)
+
+        Label(labelframe, textvariable=self.label_D).grid(row=0, column=6, padx=10, pady=10)
+
+        self.label_deriv_L.set("L'(x): ")
+        self.label_deriv_N.set("N'(x): ")
         self.label_D.set("D = |L'(x) - N'(x)|")
 
     """load data from text fields"""
@@ -102,6 +132,7 @@ class MyApp:
         self.text_y3.insert(END, 0.865)
         self.text_y4.insert(END, 0.532)
 
+
     """clear text fileds"""
     def clear_fields(self):
         self.text_x1.delete("1.0",END)
@@ -114,18 +145,44 @@ class MyApp:
         self.text_y3.delete("1.0",END)
         self.text_y4.delete("1.0",END)
 
-        self.label_L.set("Лаградж")
-        self.label_deriv_L.set("производная Лагрнаджа")
-        self.label_N.set("Ньютон")
-        self.label_deriv_N.set("производная Ньютона")
+        self.label_deriv_L.set("L'(x): ")
+        self.label_deriv_N.set("N'(x): ")
+
+        self.label_L_y1.set("")
+        self.label_L_y2.set("")
+        self.label_L_y3.set("")
+        self.label_L_y4.set("")
+
+        self.label_N_y1.set("")
+        self.label_N_y2.set("")
+        self.label_N_y3.set("")
+        self.label_N_y4.set("")
+
+        self.label_D.set("d:")
+
+
+    """Calculations"""
 
     def calc(self):
         self.calc_L()
         self.calc_N()
+        self.calc_D()
+
+    def calc_D(self):
+        d = abs(self.deriv_L - self.deriv_N)
+        self.label_D.set("d: " + str(d))
 
     def calc_L(self):
-        X = [self.text_x1.get("1.0", END), self.text_x2.get("1.0", END), self.text_x3.get("1.0", END), self.text_x4.get("1.0", END)]
-        Y = [self.text_y1.get("1.0", END), self.text_y2.get("1.0", END), self.text_y3.get("1.0", END), self.text_y4.get("1.0", END)]
+        X = [self.text_x1.get("1.0", END),
+             self.text_x2.get("1.0", END),
+             self.text_x3.get("1.0", END),
+             self.text_x4.get("1.0", END)]
+
+        Y = [self.text_y1.get("1.0", END),
+             self.text_y2.get("1.0", END),
+             self.text_y3.get("1.0", END),
+             self.text_y4.get("1.0", END)]
+
         X = list(map(lambda x: float(x[0:-1]), X))
         Y = list(map(lambda y: float(y[0:-1]), Y))
 
@@ -137,12 +194,16 @@ class MyApp:
 
         """Lagrange formula in action"""
 
-        result = scipy.interpolate.lagrange(X,Y)
-        self.label_L.set("L(x)= " + str(result))
-        self.label_deriv_L.set("L'(x) = "+str(scipy.misc.derivative(sub_formula, 0.2)))
+        lagrange_func = scipy.interpolate.lagrange(X,Y)
 
+        L_y = [round(lagrange_func(x), 4) for x in X]
 
-
+        self.deriv_L = round(scipy.misc.derivative(lagrange_func, 0.2), 4)
+        self.label_deriv_L.set("L'(x): " + str(self.deriv_L))
+        self.label_L_y1.set(L_y[0])
+        self.label_L_y2.set(L_y[1])
+        self.label_L_y3.set(L_y[2])
+        self.label_L_y4.set(L_y[3])
 
 
     def calc_N(self):
@@ -162,11 +223,21 @@ class MyApp:
         X = np.array(X)
         Y = np.array(Y)
 
+        points = list(zip(X,Y))
+
+        p_func, p_string = newton.interpolation_polynomial(points, get_string=True)
+
+        self.deriv_N = round(scipy.misc.derivative(p_func, 0.2), 4)
+        N_y = [p_func(x) for x in X]
+
+        self.label_deriv_N.set("N'(x): " + str(self.deriv_N))
+        self.label_N_y1.set(N_y[0])
+        self.label_N_y2.set(N_y[1])
+        self.label_N_y3.set(N_y[2])
+        self.label_N_y4.set(N_y[3])
+
         # result = scipy.interpolate.newton()
         # self.label_L.set(result)
-
-
-
 
 
 root = Tk()
